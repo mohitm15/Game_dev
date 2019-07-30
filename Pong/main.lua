@@ -3,6 +3,14 @@
 ]]
 push = require 'push'
 
+-- class libray
+Class = require 'class'
+
+-- inherting the classes
+require 'Paddle'
+require 'Ball'
+
+
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 
@@ -37,16 +45,11 @@ function love.load()
     --player2Score = 0
 
     -- paddle positions on the Y axis
-    player1Y = 30
-    player2Y = VIRTUAL_HEIGHT - 50
+    player1 = Paddle(10,30,5,20)
+    player2 = Paddle(VIRTUAL_WIDTH - 10 ,VIRTUAL_HEIGHT - 30,5,20)
 
-    -- initial ball positions
-    ballX = VIRTUAL_WIDTH / 2 - 2
-    ballY = VIRTUAL_HEIGHT / 2 - 2
-
-    --ball velocities
-    ballDX = math.random(2) == 1 and 100 or -100 --ternary operator
-    ballDY = math.random(-50, 50)
+    -- initial ball position
+    ball = Ball(VIRTUAL_WIDTH / 2 - 2 , VIRTUAL_HEIGHT / 2 - 2 , 4 ,4 )
 
     --defining state of the game
     gameState  = 'start'
@@ -57,25 +60,31 @@ function love.update(dt)
   -- body...
   --p1 scrolling
   if love.keyboard.isDown('w') then
-    player1Y = math.max(0, player1Y + -PADDLE_SPEED*dt)  --move up
+    player1.dy = -PADDLE_SPEED  --move up
   elseif love.keyboard.isDown('s') then
-    player1Y = math.min(VIRTUAL_HEIGHT-20 ,player1Y + PADDLE_SPEED*dt)  --move down
+    player1.dy = PADDLE_SPEED   --move down
+  else
+    player1.dy = 0
   end
 
   --p2 scrolling
   if love.keyboard.isDown('up') then
-    player2Y = math.max(0, player2Y + -PADDLE_SPEED*dt) --move up
+    player2.dy = -PADDLE_SPEED --move up
   elseif love.keyboard.isDown('down') then
-    player2Y = math.min(VIRTUAL_HEIGHT-20 ,player2Y + PADDLE_SPEED*dt) --move down
+    player2.dy = PADDLE_SPEED --move down
+  else
+    player2.dy = 0
   end
 
   --update the speed of the ball
   if gameState == 'play' then
-    ballX = ballX + ballDX * dt
-    ballY = ballY + ballDY * dt
+    ball:update(dt)
   end
 
+  player1:update(dt)
+  player2:update(dt)
 end
+
 
 -- draw function
 function love.draw()
@@ -96,14 +105,12 @@ function love.draw()
     --love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
     --love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
-    --first paddle rectangle(left side)
-    love.graphics.rectangle('fill', 10, player1Y, 5, 20)
+    -- render paddles, now using their class's render method
+    player1:render()
+    player2:render()
 
-    --second paddle (right side)
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, player2Y, 5, 20)
-
-    --ball (center)
-    love.graphics.rectangle('fill', ballX, ballY, 4, 4)
+    -- render ball using its class's render method
+    ball:render()
 
     -- end rendering at virtual resolution
     push:apply('end')
@@ -112,7 +119,7 @@ end
 
 -- closing function using backspace (Can use Escape also)
 function love.keypressed(key)
-    if key == 'backspace' then
+    if key == 'backspace' or key == 'escape' then
         -- function to terminate application
         love.event.quit()
 
@@ -123,12 +130,8 @@ function love.keypressed(key)
         else
             gameState = 'start'
 
-            ballX = VIRTUAL_WIDTH / 2 - 2
-            ballY = VIRTUAL_HEIGHT / 2 - 2
-
-            -- given ball's x and y velocity a random starting value
-            ballDX = math.random(2) == 1 and 100 or -100
-            ballDY = math.random(-50, 50) * 1.5
+            -- ball's new reset method
+            ball:reset()
         end
     end
 end
