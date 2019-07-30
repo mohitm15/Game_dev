@@ -63,7 +63,7 @@ function love.update(dt)
   if gameState== 'play' then
     --detect the ball collision with paddles
     if ball:collides(player1) then
-      ball.dx = -ball.dx * 0.75  --invert the diectn
+      ball.dx = -ball.dx * 1.05  --invert the diectn
       ball.x = player1.x + 5     --bouces over the right edge of paddleleft
 
         -- changes velocity going in the same direction
@@ -75,7 +75,7 @@ function love.update(dt)
     end
 
     if ball:collides(player2) then
-      ball.dx = -ball.dx * 2  --invert the diectn
+      ball.dx = -ball.dx * 1.05  --invert the diectn
       ball.x = player2.x - 4     --bouces over the leftt edge of paddleright
 
         -- changes velocity going in the same direction
@@ -99,6 +99,21 @@ function love.update(dt)
     end
   end
 
+  --when ball hits left boundary of screen
+  if ball.x < 0 then
+    servingPlayer = 1
+    player2Score = player2Score + 1
+    ball:reset()
+    gameState = 'serve'
+  end
+
+  --when ball hits right boundary of screen
+  if ball.x > VIRTUAL_WIDTH then
+    servingPlayer = 2
+    player1Score = player1Score + 1
+    ball:reset()
+    gameState = 'serve'
+  end
 
   --p1 scrolling
   if love.keyboard.isDown('w') then
@@ -135,17 +150,21 @@ function love.draw()
 
     -- to clear the scrren with a color
     --love.graphics.clear(40, 45, 52, 255)
+
+    --functn to display scoreFont
+    displayScore()
     love.graphics.setFont(smallFont)
     if gameState == 'start' then
-        love.graphics.printf('Welcome Boi !', 0, 20, VIRTUAL_WIDTH, 'center')
-    else
-        love.graphics.printf('Now Play !', 0, 20, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Welcome Boi !', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter to begin boi!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'serve' then
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!", 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Press Enter to serve boi!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'play' then
     end
 
-    --draw score with larger FOnt
-    love.graphics.setFont(scoreFont)
-    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
-    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
+
 
     -- render paddles, now using their class's render method
     player1:render()
@@ -168,6 +187,16 @@ function displayFPS()
     love.graphics.setFont(smallFont)
     love.graphics.setColor(0, 255, 0, 255)
     love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
+end
+-- displaying score
+function displayScore()
+    -- draw score on the left and right center of the screen
+    -- need to switch font to draw before actually printing
+    love.graphics.setFont(scoreFont)
+    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50,
+        VIRTUAL_HEIGHT / 3)
+    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30,
+        VIRTUAL_HEIGHT / 3)
 end
 
 -- closing function using backspace (Can use Escape also)
