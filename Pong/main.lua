@@ -227,20 +227,19 @@ function love.draw()
     -- render ball using its class's render method
     ball:render()
 
-    -- new function just to demonstrate how to see FPS in LÖVE2D
-    displayFPS()
+    -- new function just to demonstrate my name
+    displayname()
 
     -- end rendering at virtual resolution
     push:apply('end')
 
 end
 
---Renders the current FPS.
-function displayFPS()
+function displayname()
     -- simple FPS display across all states
     love.graphics.setFont(smallFont)
     love.graphics.setColor(0, 255, 0, 255)
-    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
+    love.graphics.print('By:Mohit Maroliya')
 end
 -- displaying score
 function displayScore()
