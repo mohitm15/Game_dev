@@ -60,7 +60,46 @@ end
 
 -- update function
 function love.update(dt)
-  -- body...
+  if gameState== 'play' then
+    --detect the ball collision with paddles
+    if ball:collides(player1) then
+      ball.dx = -ball.dx * 0.75  --invert the diectn
+      ball.x = player1.x + 5     --bouces over the right edge of paddleleft
+
+        -- changes velocity going in the same direction
+        if ball.dy < 0 then
+            ball.dy = -math.random(10, 150)
+        else
+            ball.dy = math.random(10, 150)
+        end
+    end
+
+    if ball:collides(player2) then
+      ball.dx = -ball.dx * 2  --invert the diectn
+      ball.x = player2.x - 4     --bouces over the leftt edge of paddleright
+
+        -- changes velocity going in the same direction
+        if ball.dy < 0 then
+            ball.dy = -math.random(10, 150)
+        else
+            ball.dy = math.random(10, 150)
+        end
+    end
+
+    -- detect upper and lower screen boundary collision and reverse if collided
+    if ball.y <= 0 then
+        ball.y = 0
+        ball.dy = -ball.dy
+    end
+
+    -- -4 to account for the ball's size
+    if ball.y >= VIRTUAL_HEIGHT - 4 then
+        ball.y = VIRTUAL_HEIGHT - 4
+        ball.dy = -ball.dy
+    end
+  end
+
+
   --p1 scrolling
   if love.keyboard.isDown('w') then
     player1.dy = -PADDLE_SPEED  --move up
@@ -104,9 +143,9 @@ function love.draw()
     end
 
     --draw score with larger FOnt
-    --love.graphics.setFont(scoreFont)
-    --love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
-    --love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
+    love.graphics.setFont(scoreFont)
+    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3)
+    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
     -- render paddles, now using their class's render method
     player1:render()
