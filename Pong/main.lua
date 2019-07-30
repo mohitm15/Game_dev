@@ -1,14 +1,13 @@
 --[[
     Pong Game Development
 ]]
-push = require 'push'
-
--- class libray
-Class = require 'class'
+--libraries
+push = require 'Libraries/push'
+Class = require 'Libraries/class'
 
 -- inherting the classes
-require 'Paddle'
-require 'Ball'
+require 'Classes/Paddle'
+require 'Classes/Ball'
 
 
 WINDOW_WIDTH = 1280
@@ -31,9 +30,10 @@ function love.load()
     math.randomseed(os.time())
 
     --font
-    smallFont = love.graphics.newFont('font.ttf', 8)
-    largeFont = love.graphics.newFont('font.ttf', 16)
-    scoreFont = love.graphics.newFont('font.ttf', 32)
+    smallFont = love.graphics.newFont('fonts/font.ttf', 8)
+    largeFont = love.graphics.newFont('fonts/font.ttf', 16)
+    scoreFont = love.graphics.newFont('fonts/font.ttf', 32)
+    nameFont  = love.graphics.newFont('fonts/chargen.ttf', 8)
     --set this for small obejct
     love.graphics.setFont(smallFont)
 
@@ -237,7 +237,7 @@ end
 
 function displayname()
     -- simple FPS display across all states
-    love.graphics.setFont(smallFont)
+    love.graphics.setFont(nameFont)
     love.graphics.setColor(0, 255, 0, 255)
     love.graphics.print('By:Mohit Maroliya')
 end
