@@ -24,6 +24,9 @@ function love.load()
     -- use nearest-neighbor filtering on upscaling and downscaling to prevent blurring of text
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
+    --set title
+    love.window.setTitle('Pong game by Mohit Maroliya')
+
     --use cuurent time as parameter for random function
     math.randomseed(os.time())
 
@@ -41,8 +44,8 @@ function love.load()
     })
 
     -- initialize score variables
-    --player1Score = 0
-    --player2Score = 0
+    player1Score = 0
+    player2Score = 0
 
     -- paddle positions on the Y axis
     player1 = Paddle(10,30,5,20)
@@ -112,9 +115,20 @@ function love.draw()
     -- render ball using its class's render method
     ball:render()
 
+    -- new function just to demonstrate how to see FPS in LÖVE2D
+    displayFPS()
+
     -- end rendering at virtual resolution
     push:apply('end')
 
+end
+
+--Renders the current FPS.
+function displayFPS()
+    -- simple FPS display across all states
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(0, 255, 0, 255)
+    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
 end
 
 -- closing function using backspace (Can use Escape also)
