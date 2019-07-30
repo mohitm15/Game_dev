@@ -32,6 +32,7 @@ function love.load()
 
     --font
     smallFont = love.graphics.newFont('font.ttf', 8)
+    largeFont = love.graphics.newFont('font.ttf', 16)
     scoreFont = love.graphics.newFont('font.ttf', 32)
     --set this for small obejct
     love.graphics.setFont(smallFont)
@@ -60,7 +61,15 @@ end
 
 -- update function
 function love.update(dt)
-  if gameState== 'play' then
+  if gameState == 'serve' then
+    ball.dy = math.random(-50,50)
+    if servingPlayer == 1 then
+      ball.dx = math.random(140, 200)
+    else
+      ball.dx = -math.random(140, 200)
+    end
+
+  elseif gameState== 'play' then
     --detect the ball collision with paddles
     if ball:collides(player1) then
       ball.dx = -ball.dx * 1.05  --invert the diectn
@@ -97,22 +106,37 @@ function love.update(dt)
         ball.y = VIRTUAL_HEIGHT - 4
         ball.dy = -ball.dy
     end
-  end
 
-  --when ball hits left boundary of screen
-  if ball.x < 0 then
-    servingPlayer = 1
-    player2Score = player2Score + 1
-    ball:reset()
-    gameState = 'serve'
-  end
+
+    --when ball hits left boundary of screen
+    if ball.x < 0 then
+      servingPlayer = 1
+      player2Score = player2Score + 1
+
+      --victory update for player2
+      if player2Score == 5 then
+          winningPlayer = 2
+          gameState = 'done'
+      else
+          gameState = 'serve'
+          ball:reset()
+      end
+    end
 
   --when ball hits right boundary of screen
-  if ball.x > VIRTUAL_WIDTH then
-    servingPlayer = 2
-    player1Score = player1Score + 1
-    ball:reset()
-    gameState = 'serve'
+    if ball.x > VIRTUAL_WIDTH then
+      servingPlayer = 2
+      player1Score = player1Score + 1
+
+      --victory updaet for player1
+      if player1Score == 5 then
+          winningPlayer = 1
+          gameState = 'done'
+      else
+          gameState = 'serve'
+          ball:reset()
+      end
+    end
   end
 
   --p1 scrolling
@@ -154,6 +178,7 @@ function love.draw()
     --functn to display scoreFont
     displayScore()
     love.graphics.setFont(smallFont)
+
     if gameState == 'start' then
         love.graphics.printf('Welcome Boi !', 0, 10, VIRTUAL_WIDTH, 'center')
         love.graphics.printf('Press Enter to begin boi!', 0, 20, VIRTUAL_WIDTH, 'center')
@@ -162,6 +187,14 @@ function love.draw()
         love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!", 0, 10, VIRTUAL_WIDTH, 'center')
         love.graphics.printf('Press Enter to serve boi!', 0, 20, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'play' then
+        -- do nothing only play
+    elseif gameState == 'done' then
+      -- UI messages
+      love.graphics.setFont(largeFont)
+      love.graphics.printf('Player ' .. tostring(winningPlayer) .. ' wins!',0, 10, VIRTUAL_WIDTH, 'center')
+      love.graphics.setFont(smallFont)
+      love.graphics.printf('Press Enter to restart!', 0, 30, VIRTUAL_WIDTH, 'center')
+
     end
 
 
@@ -208,12 +241,22 @@ function love.keypressed(key)
         --press enter during the start state of the game, we'll go into play mode
     elseif key == 'enter' or key == 'return' then
         if gameState == 'start' then
+            gameState = 'serve'
+        elseif gameState == 'serve' then
             gameState = 'play'
-        else
-            gameState = 'start'
-
+        elseif gameState == 'done' then
+            gameState = 'serve'
             -- ball's new reset method
             ball:reset()
+            player1Score = 0
+            player2Score = 0
+
+            --winnign condtn
+            if winningPlayer == 1 then
+              servingPlayer = 2
+            else
+              servingPlayer = 1
+            end
         end
     end
-end
+end --functn end
