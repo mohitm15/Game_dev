@@ -48,7 +48,7 @@ function love.load()
     -- initialize our virtual resolution
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
-        resizable = false,
+        resizable = true,
         vsync = true
     })
 
@@ -65,6 +65,11 @@ function love.load()
 
     --defining state of the game
     gameState  = 'start'
+end
+
+--fn to resizable screen
+function love.resize (w , h)
+  push:resize(w,h)
 end
 
 -- update function
@@ -189,7 +194,7 @@ function love.draw()
     push:apply('start')
 
     -- to clear the scrren with a color
-    --love.graphics.clear(40, 45, 52, 255)
+    love.graphics.clear(255,255, 0, 0)
 
     --functn to display scoreFont
     displayScore()
