@@ -5,6 +5,10 @@
 
 push = require 'push'
 
+Class = require 'class'
+
+require 'bird'
+
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 
@@ -14,6 +18,7 @@ VIRTUAL_HEIGHT = 288
 -- background image and starting scroll location (X axis)
 local background = love.graphics.newImage('images/background.png')
 local backgroundScroll = 0
+
 -- ground image and starting scroll location (X axis)
 local ground = love.graphics.newImage('images/ground.png')
 local groundScroll = 0
@@ -25,6 +30,8 @@ local GROUND_SCROLL_SPEED =60
 -- point at which we should loop our background back to X 0
 local BG_LOOPING_POINT = 413
 
+--creating bird object
+local bird = Bird()
 function love.load()
     -- initialize our nearest-neighbor filter
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -58,6 +65,8 @@ function love.draw()
 
     -- draw the ground on top of the background, toward the bottom of the screen
     love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
+
+    bird:render()
 
     push:finish()
 end
