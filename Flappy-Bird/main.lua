@@ -9,6 +9,7 @@ Class = require 'class'
 
 require 'bird'
 require 'Pipe'
+require 'PipePair'
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -31,14 +32,20 @@ local GROUND_SCROLL_SPEED =60
 -- point at which we should loop our background back to X 0
 local BG_LOOPING_POINT = 413
 
+-- point at which we should loop our ground back to X 0
+local GROUND_LOOPING_POINT = 514
+
 --creating bird object
 local bird = Bird()
 
---table of spawning Pipes
-local pipes = {}
+--table of spawning PipePair
+local pipePairs = {}
 
 --timer for spawning pipes
 local spawnTimer = 0
+
+-- initialize our last recorded Y value for a gap placement to base other gaps off of
+local lastY = -PIPE_HEIGHT + math.random(80) + 20
 
 function love.load()
     -- initialize our nearest-neighbor filter
@@ -64,26 +71,33 @@ end
 function love.update(dt)
   --parallex of speed looping back to 0 after the looping point
   backgroundScroll = (backgroundScroll + BG_SCROLL_SPEED * dt) % BG_LOOPING_POINT
-  groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
+  groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % GROUND_LOOPING_POINT
 
   spawnTimer = spawnTimer + dt
 
-  -- spawn a new Pipe if the timer is past 2 seconds
+  -- spawn a new PipePair if the timer is past 2 seconds
   if spawnTimer > 2 then
-      table.insert(pipes, Pipe())
-      print('Added new pipe!')
+      -- modify the last Y coordinate we placed so pipe gaps aren't too far apart
+      -- gap: 10px from top to 90 px from bottom
+      local y = math.max(-PIPE_HEIGHT + 10,
+          math.min(lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT))
+      lastY = y
+
+      table.insert(pipePairs, PipePair(y))
       spawnTimer = 0
   end
 
   bird:update(dt)
 
   -- for every pipe in the scene...
-  for k, pipe in pairs(pipes) do
-      pipe:update(dt)
+  for k, pair in pairs(pipePairs) do
+      pair:update(dt)
+  end
 
-      -- if pipe is no longer visible past left edge, remove it from scene
-      if pipe.x < -pipe.width then
-          table.remove(pipes, k)
+
+  for k, pair in pairs(pipePairs) do
+      if pair.remove then
+          table.remove(pipePairs, k)
       end
   end
 
@@ -98,9 +112,9 @@ function love.draw()
     -- draw the background
     love.graphics.draw(background, -backgroundScroll, 0)
 
-    -- render all the pipes in our scene
-    for k, pipe in pairs(pipes) do
-        pipe:render()
+    -- render all the pipe pairs in our scene
+    for k, pair in pairs(pipePairs) do
+        pair:render()
     end
 
     -- draw the ground on top of the background, toward the bottom of the screen
