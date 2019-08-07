@@ -45,6 +45,8 @@ function love.load()
         fullscreen = false,
         resizable = true
     })
+-- initialize the input table
+    love.keyboard.keysPressed = {}
 end
 
 function love.resize(w, h)
@@ -57,6 +59,9 @@ function love.update(dt)
   groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
 
   bird:update(dt)
+
+  --reset table of input
+  love.keyboard.keysPressed = {}
 end
 
 function love.draw()
@@ -75,7 +80,19 @@ end
 
 
 function love.keypressed(key)
+  -- add to the table of keys
+  love.keyboard.keysPressed[key]= true
+
     if key == 'escape' then
         love.event.quit()
+    end
+end
+--fn used to check our global input table for keys we activated during
+    --this frame, looked up by their string value.
+function love.keyboard.wasPressed(key)
+    if love.keyboard.keysPressed[key] then
+        return true
+    else
+        return false
     end
 end
