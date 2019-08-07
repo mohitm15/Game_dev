@@ -8,6 +8,7 @@ push = require 'push'
 Class = require 'class'
 
 require 'bird'
+require 'Pipe'
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -32,6 +33,13 @@ local BG_LOOPING_POINT = 413
 
 --creating bird object
 local bird = Bird()
+
+--table of spawning Pipes
+local pipes = {}
+
+--timer for spawning pipes
+local spawnTimer = 0
+
 function love.load()
     -- initialize our nearest-neighbor filter
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -58,17 +66,42 @@ function love.update(dt)
   backgroundScroll = (backgroundScroll + BG_SCROLL_SPEED * dt) % BG_LOOPING_POINT
   groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIRTUAL_WIDTH
 
+  spawnTimer = spawnTimer + dt
+
+  -- spawn a new Pipe if the timer is past 2 seconds
+  if spawnTimer > 2 then
+      table.insert(pipes, Pipe())
+      print('Added new pipe!')
+      spawnTimer = 0
+  end
+
   bird:update(dt)
+
+  -- for every pipe in the scene...
+  for k, pipe in pairs(pipes) do
+      pipe:update(dt)
+
+      -- if pipe is no longer visible past left edge, remove it from scene
+      if pipe.x < -pipe.width then
+          table.remove(pipes, k)
+      end
+  end
 
   --reset table of input
   love.keyboard.keysPressed = {}
 end
+
 
 function love.draw()
     push:start()
 
     -- draw the background
     love.graphics.draw(background, -backgroundScroll, 0)
+
+    -- render all the pipes in our scene
+    for k, pipe in pairs(pipes) do
+        pipe:render()
+    end
 
     -- draw the ground on top of the background, toward the bottom of the screen
     love.graphics.draw(ground, -groundScroll, VIRTUAL_HEIGHT - 16)
