@@ -16,6 +16,8 @@ function PipePair:init(y)
 
     -- remove PipePair
     self.remove = false
+
+    self.scored = false
 end
 
 function PipePair:update(dt)
