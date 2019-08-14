@@ -37,7 +37,8 @@ function Bird:update(dt)
 
 -- add antigravity factor
   if love.keyboard.wasPressed('space') then
-    self.dy= -6
+    self.dy= -4
+    sounds['jump']:play()
   end
 
   self.y = self.y +self.dy
