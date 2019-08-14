@@ -20,6 +20,17 @@ function Bird:init()
     self.dy = 0
 end
 
+function Bird:collides(pipe)
+  --offset make so that some part of the bird gets leewayed for the user
+  if (self.x + 2) + (self.width - 4) >= pipe.x and self.x + 2 <= pipe.x + PIPE_WIDTH then
+    if (self.y + 2) + (self.height - 4) >= pipe.y and self.y + 2 <= pipe.y + PIPE_HEIGHT then
+        return true
+    end
+  end
+
+return false
+end
+
 -- makes downward effect on bird
 function Bird:update(dt)
   self.dy = self.dy + dt * GRAVITY

@@ -47,6 +47,9 @@ local spawnTimer = 0
 -- initialize our last recorded Y value for a gap placement to base other gaps off of
 local lastY = -PIPE_HEIGHT + math.random(80) + 20
 
+--pause game when we collide
+local scrolling = true
+
 function love.load()
     -- initialize our nearest-neighbor filter
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -69,38 +72,50 @@ function love.resize(w, h)
 end
 
 function love.update(dt)
-  --parallex of speed looping back to 0 after the looping point
-  backgroundScroll = (backgroundScroll + BG_SCROLL_SPEED * dt) % BG_LOOPING_POINT
-  groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % GROUND_LOOPING_POINT
+    if scrolling then
+      --parallex of speed looping back to 0 after the looping point
+      backgroundScroll = (backgroundScroll + BG_SCROLL_SPEED * dt) % BG_LOOPING_POINT
+      groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % GROUND_LOOPING_POINT
 
-  spawnTimer = spawnTimer + dt
+      spawnTimer = spawnTimer + dt
 
-  -- spawn a new PipePair if the timer is past 2 seconds
-  if spawnTimer > 2 then
-      -- modify the last Y coordinate we placed so pipe gaps aren't too far apart
-      -- gap: 10px from top to 90 px from bottom
-      local y = math.max(-PIPE_HEIGHT + 10,
-          math.min(lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT))
-      lastY = y
+      -- spawn a new PipePair if the timer is past 2 seconds
+      if spawnTimer > 2 then
+          -- modify the last Y coordinate we placed so pipe gaps aren't too far apart
+          -- gap: 10px from top to 90 px from bottom
+          local y = math.max(-PIPE_HEIGHT + 10,
+              math.min(lastY + math.random(-20, 20), VIRTUAL_HEIGHT - 90 - PIPE_HEIGHT))
+          lastY = y
 
-      table.insert(pipePairs, PipePair(y))
-      spawnTimer = 0
-  end
-
-  bird:update(dt)
-
-  -- for every pipe in the scene...
-  for k, pair in pairs(pipePairs) do
-      pair:update(dt)
-  end
-
-
-  for k, pair in pairs(pipePairs) do
-      if pair.remove then
-          table.remove(pipePairs, k)
+          table.insert(pipePairs, PipePair(y))
+          spawnTimer = 0
       end
-  end
 
+      bird:update(dt)
+
+      -- for every pipe in the scene...
+      for k, pair in pairs(pipePairs) do
+          pair:update(dt)
+
+          --if bird collide with pipes
+          for l,pipe in pairs(pair.pipes) do
+            if bird:collides(pipe) then
+              scrolling = false --pauses the Game
+            end
+          end
+
+          -- if pair.x < -PIPE_WIDTH then
+          --   pair.remove = true
+          -- end
+      end
+
+
+      for k, pair in pairs(pipePairs) do
+          if pair.remove then
+              table.remove(pipePairs, k)
+          end
+      end
+    end
   --reset table of input
   love.keyboard.keysPressed = {}
 end
